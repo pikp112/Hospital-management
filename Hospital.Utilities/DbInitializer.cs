@@ -25,10 +25,10 @@ namespace Hospital.Utilities
                 userManager.CreateAsync(new ApplicationUser
                 {
                     UserName = "Sorin",
-                    Email = "abcdef@yahoo.com"
+                    Email = "sorinnnn96@yahoo.com"
                 }, "Sorin@123").GetAwaiter().GetResult();
 
-                var appUser = dbContext.ApplicationUsers.FirstOrDefault(x => x.Email == "abcdef@yahoo.com");
+                var appUser = dbContext.ApplicationUsers.FirstOrDefault(x => x.Email == "sorinnnn96@yahoo.com");
 
                 if (appUser != null)
                     userManager.AddToRoleAsync(appUser, WebSiteRoles.WebSite_Admin).GetAwaiter().GetResult();
