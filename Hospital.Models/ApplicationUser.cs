@@ -12,11 +12,15 @@ namespace Hospital.Models
         public DateTime DateOfBirth { get; set; }
         public string Specialist { get; set; }
         public Department Department { get; set; }
+        public bool IsDoctor { get; set; }
 
         [NotMapped]
         public ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
 
         [NotMapped]
         public ICollection<Payroll> Payrolls { get; set; } = new List<Payroll>();
+
+        [NotMapped]
+        public ICollection<PatientReport> PatientReports { get; set; } = new List<PatientReport>();
     }
 }

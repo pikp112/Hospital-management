@@ -7,7 +7,7 @@
         public ApplicationUser Patient { get; set; }
         public Insurance Insurance { get; set; }
         public int DoctorCharge { get; set; }
-        public decimal MedicineCharge { get; set; }
+        public double MedicineCharge { get; set; }
         public decimal RoomCharge { get; set; }
         public decimal OperationCharge { get; set; }
         public int NoOfDays { get; set; }
