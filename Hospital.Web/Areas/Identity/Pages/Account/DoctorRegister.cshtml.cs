@@ -11,6 +11,7 @@ using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
 using Hospital.Models;
+using Hospital.Utilities;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -22,7 +23,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Hospital.Web.Areas.Identity.Pages.Account
 {
-    public class RegisterModel : PageModel
+    public class DoctorRegisterModel : PageModel
     {
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
@@ -32,13 +33,12 @@ namespace Hospital.Web.Areas.Identity.Pages.Account
         private readonly IEmailSender _emailSender;
         private IWebHostEnvironment _env;
 
-        public RegisterModel(
+        public DoctorRegisterModel(
             UserManager<IdentityUser> userManager,
             IUserStore<IdentityUser> userStore,
             SignInManager<IdentityUser> signInManager,
             ILogger<RegisterModel> logger,
-            IEmailSender emailSender,
-            IWebHostEnvironment env)
+            IEmailSender emailSender)
         {
             _userManager = userManager;
             _userStore = userStore;
@@ -46,7 +46,6 @@ namespace Hospital.Web.Areas.Identity.Pages.Account
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
-            _env = env;
         }
 
         /// <summary>
@@ -106,7 +105,10 @@ namespace Hospital.Web.Areas.Identity.Pages.Account
             public Gender Gender { get; set; }
             public string Nationality { get; set; }
             public string Address { get; set; }
+            public string Specialist { get; set; }
             public DateTime DateOfBirth { get; set; }
+            public bool IsDoctor { get; set; }
+            public IFormFile PictureUri { get; set; }
         }
 
         public async Task OnGetAsync(string returnUrl = null)
@@ -125,23 +127,33 @@ namespace Hospital.Web.Areas.Identity.Pages.Account
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+                user.Name = Input.Name;
+                user.Address = Input.Address;
+                user.Nationality = Input.Nationality;
+                user.DateOfBirth = Input.DateOfBirth;
+                user.Gender = Input.Gender;
+                user.IsDoctor = Input.IsDoctor;
+                user.Specialist = Input.Specialist;
+                user.PictureUri = Input.PictureUri.ToString();
+
                 var result = await _userManager.CreateAsync(user, Input.Password);
 
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User created a new account with password.");
-                    await _userManager.AddToRoleAsync(user, "Patient");
-                    var userId = await _userManager.GetUserIdAsync(user);
-                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                    var callbackUrl = Url.Page(
-                        "/Account/ConfirmEmail",
-                        pageHandler: null,
-                        values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
-                        protocol: Request.Scheme);
 
-                    await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                        $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                    await _userManager.AddToRoleAsync(user, WebSiteRoles.Website_Doctor);
+                    var userId = await _userManager.GetUserIdAsync(user);
+                    //var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    //code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                    //var callbackUrl = Url.Page(
+                    //    "/Account/ConfirmEmail",
+                    //    pageHandler: null,
+                    //    values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
+                    //    protocol: Request.Scheme);
+
+                    //await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
+                    //    $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {
